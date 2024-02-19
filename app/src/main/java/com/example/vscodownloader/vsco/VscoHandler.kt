@@ -1,5 +1,7 @@
 package com.example.vscodownloader.vsco
 
+import android.util.Log
+import com.example.vscodownloader.vsco.dataclasses.VscoMedia
 import com.example.vscodownloader.vsco.gson.VscoGson
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
@@ -69,6 +71,27 @@ object VscoHandler {
         return@withContext response.body?.string()?.let {
             gson.fromJson(it, VscoGson.MediaResult::class.java).media.map { it.toVscoMedia() }
         }
+    }
+
+    suspend fun getMediaBytes(vscoMedia: VscoMedia) = withContext(Dispatchers.IO) {
+        val url = HttpUrl.Builder().apply {
+            vscoMedia.downloadUri.scheme?.let {
+                this.scheme(it)
+            }
+            vscoMedia.downloadUri.host?.let {
+                this.host(it)
+            }
+            vscoMedia.downloadUri.path?.let {
+                this.addPathSegments(it)
+            }
+        }.build()
+        val request = Request.Builder()
+            .url(url)
+            .headers(headers)
+            .build()
+        val response = client.newCall(request).execute()
+        return@withContext response.body?.byteStream()
+
     }
 
 }

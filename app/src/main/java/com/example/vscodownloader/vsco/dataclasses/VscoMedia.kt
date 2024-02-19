@@ -1,11 +1,7 @@
 package com.example.vscodownloader.vsco.dataclasses
 
-import android.app.DownloadManager
-import android.content.Context
 import android.net.Uri
 import android.os.Parcelable
-import com.example.vscodownloader.vsco.VscoHandler
-import kotlinx.parcelize.IgnoredOnParcel
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
@@ -14,14 +10,16 @@ data class VscoMedia(
     val mime: String,
     val downloadUri: Uri
 ): Parcelable {
-    suspend fun download(context: Context) {
-        val request = DownloadManager.Request(this.downloadUri)
-        VscoHandler.headers.forEach {
-            request.addRequestHeader(it.first, it.second)
-        }
-
+    override fun hashCode(): Int {
+        return id.hashCode()
     }
 
-    @IgnoredOnParcel
-    val filename = id
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as VscoMedia
+
+        return id == other.id
+    }
 }
