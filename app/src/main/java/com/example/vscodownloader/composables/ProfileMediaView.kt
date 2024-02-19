@@ -1,5 +1,7 @@
 package com.example.vscodownloader.composables
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
@@ -13,7 +15,9 @@ import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -26,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import androidx.core.provider.DocumentsContractCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.example.vscodownloader.viewmodels.ProfileMediaViewViewModel
@@ -42,27 +47,42 @@ fun ProfileMediaView(
         vm.fetchMedia(vscoProfile)
     }
 
-    Column(
-        modifier = modifier,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Column(
-            modifier = Modifier.padding(10.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            AsyncImage(
-                model = vscoProfile.imageUri,
-                contentDescription = "Profile Picture",
-                contentScale = ContentScale.Crop,
+    Scaffold(
+        topBar = {
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth(0.3F)
-                    .aspectRatio(1F)
-                    .clip(CircleShape)
-            )
-            Text(vscoProfile.name)
+                    .padding(10.dp)
+                    .fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                AsyncImage(
+                    model = vscoProfile.imageUri,
+                    contentDescription = "Profile Picture",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .fillMaxWidth(0.3F)
+                        .aspectRatio(1F)
+                        .clip(CircleShape)
+                )
+                Text(vscoProfile.name)
+            }
+        },
+        bottomBar = {
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
+                TextButton(
+                    onClick = { vm.download(vscoProfile, media) }) {
+                    Text("Download Posts")
+                }
+            }
         }
-
-        LazyVerticalStaggeredGrid(columns = StaggeredGridCells.Fixed(2)) {
+    ) {
+        LazyVerticalStaggeredGrid(
+            columns = StaggeredGridCells.Fixed(2),
+            modifier = Modifier.padding(it)
+        ) {
             items(media) {
                 var loaded by rememberSaveable {
                     mutableStateOf(false)
@@ -71,7 +91,9 @@ fun ProfileMediaView(
                     AsyncImage(
                         it.downloadUri,
                         contentDescription = "Post",
-                        modifier = Modifier.fillMaxWidth().padding(2.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(2.dp),
                         contentScale = ContentScale.FillWidth,
                         onSuccess = { loaded = true }
                     )

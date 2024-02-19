@@ -38,7 +38,7 @@ object VscoHandler {
             .addPathSegments("api/2.0/search/grids")
             .addQueryParameter("query", username)
             .addQueryParameter("page", "0")
-            .addQueryParameter("size", "7")
+            .addQueryParameter("size", "12")
             .build()
         val request = Request.Builder()
             .headers(headers)

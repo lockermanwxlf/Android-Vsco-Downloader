@@ -16,6 +16,7 @@ import com.example.vscodownloader.ui.theme.VscoDownloaderTheme
 import dagger.hilt.EntryPoint
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.HiltAndroidApp
+import javax.inject.Inject
 
 @HiltAndroidApp
 class MyApp: Application() {
