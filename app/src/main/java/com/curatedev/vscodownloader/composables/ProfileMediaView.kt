@@ -1,5 +1,9 @@
-package com.example.vscodownloader.composables
+package com.curatedev.vscodownloader.composables
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
@@ -7,14 +11,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -22,29 +22,31 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.core.provider.DocumentsContractCompat
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.core.content.ContextCompat
+import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
-import com.example.vscodownloader.viewmodels.ProfileMediaViewViewModel
-import com.example.vscodownloader.vsco.dataclasses.VscoProfile
+import com.curatedev.vscodownloader.viewmodels.ProfileMediaViewViewModel
+import com.curatedev.vscodownloader.vsco.dataclasses.VscoProfile
 
 @Composable
 fun ProfileMediaView(
     vscoProfile: VscoProfile,
     modifier: Modifier = Modifier
 ) {
-    val vm: ProfileMediaViewViewModel = viewModel()
+    val context = LocalContext.current
+    val vm: ProfileMediaViewViewModel = hiltViewModel()
     val media by vm.media.collectAsState()
     LaunchedEffect(1) {
         vm.fetchMedia(vscoProfile)
+    }
+    val launcher = rememberLauncherForActivityResult(contract = ActivityResultContracts.RequestPermission()) {
+
     }
 
     Scaffold(
@@ -73,7 +75,15 @@ fun ProfileMediaView(
                 contentAlignment = Alignment.Center
             ) {
                 TextButton(
-                    onClick = { vm.download(vscoProfile, media) }) {
+                    onClick = {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                            if (ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_DENIED) {
+                                launcher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                            }
+                        }
+                        vm.download(vscoProfile, media)
+                        Toast.makeText(context, "Progress shown in notification. Avoid pressing again.", Toast.LENGTH_SHORT).show()
+                    }) {
                     Text("Download Posts")
                 }
             }
@@ -84,24 +94,14 @@ fun ProfileMediaView(
             modifier = Modifier.padding(it)
         ) {
             items(media) {
-                var loaded by rememberSaveable {
-                    mutableStateOf(false)
-                }
-                Box(contentAlignment = Alignment.Center) {
-                    AsyncImage(
-                        it.downloadUri,
-                        contentDescription = "Post",
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(2.dp),
-                        contentScale = ContentScale.FillWidth,
-                        onSuccess = { loaded = true }
-                    )
-                    if (!loaded) {
-                        CircularProgressIndicator()
-                    }
-                }
-
+                VscoAsyncImage(
+                    vscoMedia = it,
+                    contentDescription = "Post",
+                    contentScale = ContentScale.FillWidth,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(2.dp)
+                )
             }
         }
     }

@@ -1,10 +1,10 @@
-package com.example.vscodownloader.viewmodels
+package com.curatedev.vscodownloader.viewmodels
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.vscodownloader.vsco.VscoHandler
-import com.example.vscodownloader.vsco.dataclasses.VscoProfile
+import com.curatedev.vscodownloader.vsco.VscoHandler
+import com.curatedev.vscodownloader.vsco.dataclasses.VscoProfile
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

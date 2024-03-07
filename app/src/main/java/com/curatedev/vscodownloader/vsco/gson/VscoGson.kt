@@ -1,11 +1,11 @@
-package com.example.vscodownloader.vsco.gson
+package com.curatedev.vscodownloader.vsco.gson
 
 import android.net.Uri
 import androidx.annotation.OptIn
 import androidx.media3.common.MimeTypes
 import androidx.media3.common.util.UnstableApi
-import com.example.vscodownloader.vsco.dataclasses.VscoMedia
-import com.example.vscodownloader.vsco.dataclasses.VscoProfile
+import com.curatedev.vscodownloader.vsco.dataclasses.VscoMedia
+import com.curatedev.vscodownloader.vsco.dataclasses.VscoProfile
 import com.google.gson.annotations.SerializedName
 
 @OptIn(UnstableApi::class)

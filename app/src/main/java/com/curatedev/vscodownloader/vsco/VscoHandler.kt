@@ -1,8 +1,7 @@
-package com.example.vscodownloader.vsco
+package com.curatedev.vscodownloader.vsco
 
-import android.util.Log
-import com.example.vscodownloader.vsco.dataclasses.VscoMedia
-import com.example.vscodownloader.vsco.gson.VscoGson
+import com.curatedev.vscodownloader.vsco.dataclasses.VscoMedia
+import com.curatedev.vscodownloader.vsco.gson.VscoGson
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -47,9 +46,14 @@ object VscoHandler {
             .url(url)
             .build()
         val response = client.newCall(request).execute()
-        return@withContext response.body?.string()?.let {
-            gson.fromJson(it, VscoGson.GridsResult::class.java).results.map { it.toVscoProfile() }
+        if (response.code == 200) {
+            return@withContext response.body?.string()?.let {
+                gson.fromJson(it, VscoGson.GridsResult::class.java).results.map { it.toVscoProfile() }
+            }
+        } else {
+            return@withContext listOf()
         }
+
     }
 
     suspend fun getMedia(siteId: Long, cursor: String? = null) = withContext(Dispatchers.IO) {
@@ -68,29 +72,53 @@ object VscoHandler {
             .url(url)
             .build()
         val response = client.newCall(request).execute()
-        return@withContext response.body?.string()?.let {
-            gson.fromJson(it, VscoGson.MediaResult::class.java).media.map { it.toVscoMedia() }
+
+        if (response.code == 200) {
+            return@withContext response.body?.string()?.let {
+                gson.fromJson(it, VscoGson.MediaResult::class.java).media.map { it.toVscoMedia() }
+            }
+        } else {
+            return@withContext listOf()
         }
     }
 
-    suspend fun getMediaBytes(vscoMedia: VscoMedia) = withContext(Dispatchers.IO) {
-        val url = HttpUrl.Builder().apply {
-            vscoMedia.downloadUri.scheme?.let {
-                this.scheme(it)
+    suspend fun getMediaResult(siteId: Long, cursor: String? = null) = withContext(Dispatchers.IO) {
+        val url = HttpUrl.Builder()
+            .scheme("https")
+            .host("vsco.co")
+            .addPathSegments("api/3.0/medias/profile")
+            .addQueryParameter("site_id", siteId.toString())
+            .addQueryParameter("limit", "100")
+            .let { builder ->
+                cursor?.let { builder.addQueryParameter("cursor", it) }?: builder
             }
-            vscoMedia.downloadUri.host?.let {
-                this.host(it)
-            }
-            vscoMedia.downloadUri.path?.let {
-                this.addPathSegments(it)
-            }
-        }.build()
+            .build()
         val request = Request.Builder()
+            .headers(headers)
             .url(url)
+            .build()
+        val response = client.newCall(request).execute()
+        if (response.code == 200) {
+            return@withContext response.body?.string()?.let {
+                gson.fromJson(it, VscoGson.MediaResult::class.java)
+            }
+        } else {
+            return@withContext VscoGson.MediaResult(listOf(), null, null)
+        }
+
+    }
+
+    suspend fun getMediaBytes(vscoMedia: VscoMedia) = withContext(Dispatchers.IO) {
+        val request = Request.Builder()
+            .url(vscoMedia.downloadUri.toString())
             .headers(headers)
             .build()
         val response = client.newCall(request).execute()
-        return@withContext response.body?.byteStream()
+        if (response.code == 200) {
+            return@withContext response.body?.byteStream()
+        } else {
+            return@withContext null
+        }
 
     }
 

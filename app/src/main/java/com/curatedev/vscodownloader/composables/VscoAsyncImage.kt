@@ -1,4 +1,4 @@
-package com.example.vscodownloader.composables
+package com.curatedev.vscodownloader.composables
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.material3.CircularProgressIndicator
@@ -11,10 +11,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.hilt.navigation.compose.hiltViewModel
 import coil.ImageLoader
 import coil.compose.AsyncImage
-import com.example.vscodownloader.cache.CoilCacheDownloader
-import com.example.vscodownloader.vsco.dataclasses.VscoMedia
+import com.curatedev.vscodownloader.viewmodels.VscoAsyncImageViewModel
+import com.curatedev.vscodownloader.vsco.dataclasses.VscoMedia
 
 @Composable
 fun VscoAsyncImage(
@@ -24,6 +25,7 @@ fun VscoAsyncImage(
     contentScale: ContentScale = ContentScale.Fit,
 ) {
     val context = LocalContext.current
+    val vm: VscoAsyncImageViewModel = hiltViewModel()
     var loaded by rememberSaveable {
         mutableStateOf(false)
     }
@@ -31,19 +33,19 @@ fun VscoAsyncImage(
         AsyncImage(
             model = vscoMedia.downloadUri,
             contentDescription = contentDescription,
-            modifier = Modifier,
+            modifier = modifier,
             contentScale = contentScale,
             onSuccess = {
                 loaded = true
-                CoilCacheDownloader.imageLoaded(
+                vm.imageLoaded(
                     vscoMedia,
                     it.result.memoryCacheKey,
                     it.result.diskCacheKey
                 )
             },
             imageLoader = ImageLoader.Builder(context)
-                .memoryCache(CoilCacheDownloader.memoryCache)
-                .diskCache(CoilCacheDownloader.diskCache)
+                .memoryCache(vm.memoryCache)
+                .diskCache(vm.diskCache)
                 .build()
         )
         if (!loaded){

@@ -1,4 +1,4 @@
-package com.example.vscodownloader.vsco.dataclasses
+package com.curatedev.vscodownloader.vsco.dataclasses
 
 import android.net.Uri
 import android.os.Parcelable
