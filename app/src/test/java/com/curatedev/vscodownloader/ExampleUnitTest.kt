@@ -1,4 +1,4 @@
-package com.example.vscodownloader
+package com.curatedev.vscodownloader
 
 import org.junit.Test
 

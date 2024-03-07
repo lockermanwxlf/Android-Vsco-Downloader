@@ -1,4 +1,4 @@
-package com.example.vscodownloader
+package com.curatedev.vscodownloader
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4

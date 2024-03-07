@@ -7,11 +7,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.vscodownloader"
+    namespace = "com.curatedev.vscodownloader"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.example.vscodownloader"
+        applicationId = "com.curatedev.vscodownloader"
         minSdk = 30
         targetSdk = 34
         versionCode = 1
@@ -69,6 +69,8 @@ dependencies {
     implementation("androidx.media3:media3-common:1.3.0-beta01")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("androidx.navigation:navigation-compose:2.8.0-alpha02")
+    implementation("androidx.hilt:hilt-navigation-compose:1.2.0-rc01")
+    implementation("androidx.work:work-runtime-ktx:2.10.0-alpha01")
     kapt("com.google.dagger:hilt-android-compiler:2.50")
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
@@ -77,4 +79,7 @@ dependencies {
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
+}
+kapt {
+    correctErrorTypes = true
 }

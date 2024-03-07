@@ -1,4 +1,4 @@
-package com.example.vscodownloader.ui.theme
+package com.curatedev.vscodownloader.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
